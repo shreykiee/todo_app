@@ -10,10 +10,10 @@ class TodoPage extends StatefulWidget {
 }
 
 class _TodoPageState extends State<TodoPage> {
-  List todolist = [
-    ["make tea", true],
-    ["drink tea", false]
-  ];
+  //text controller
+  final Mycontroller = TextEditingController();
+
+  List todolist = [];
 
   //checkbox changed
   void checkboxchanged(bool? value, int index) {
@@ -22,12 +22,34 @@ class _TodoPageState extends State<TodoPage> {
     });
   }
 
+  //saving new task
+
+  void saveNewTask() {
+    setState(() {
+      todolist.add([Mycontroller.text, false]);
+      Mycontroller.clear();
+    });
+    Navigator.of(context).pop();
+  }
+
+  //deleting task
+
+  void deleteTask(int index) {
+    setState(() {
+      todolist.removeAt(index);
+    });
+  }
+
   //creating new task
   void CreateNewTask() {
     showDialog(
         context: context,
         builder: (context) {
-          return DialogBox();
+          return DialogBox(
+            controller: Mycontroller,
+            onCancel: () => Navigator.of(context).pop(),
+            onSave: saveNewTask,
+          );
         });
   }
 
@@ -55,6 +77,8 @@ class _TodoPageState extends State<TodoPage> {
             taskname: todolist[index][0],
             taskCompleted: todolist[index][1],
             onChanged: (value) => checkboxchanged(value, index),
+
+            //deleteFunction: (context) => deleteTask(index),
           );
         },
       ),

@@ -12,6 +12,7 @@ class TodoPage extends StatefulWidget {
 class _TodoPageState extends State<TodoPage> {
   //text controller
   final Mycontroller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
 
   List todolist = [];
 
@@ -25,11 +26,13 @@ class _TodoPageState extends State<TodoPage> {
   //saving new task
 
   void saveNewTask() {
-    setState(() {
-      todolist.add([Mycontroller.text, false]);
-      Mycontroller.clear();
-    });
-    Navigator.of(context).pop();
+    if (Mycontroller.text != "") {
+      setState(() {
+        todolist.add([Mycontroller.text, false]);
+        Mycontroller.clear();
+      });
+      Navigator.of(context).pop();
+    }
   }
 
   //deleting task
@@ -49,6 +52,7 @@ class _TodoPageState extends State<TodoPage> {
             controller: Mycontroller,
             onCancel: () => Navigator.of(context).pop(),
             onSave: saveNewTask,
+            focusNode: _focusNode,
           );
         });
   }
@@ -77,6 +81,7 @@ class _TodoPageState extends State<TodoPage> {
             taskname: todolist[index][0],
             taskCompleted: todolist[index][1],
             onChanged: (value) => checkboxchanged(value, index),
+            onDelete: () => deleteTask(index),
 
             //deleteFunction: (context) => deleteTask(index),
           );

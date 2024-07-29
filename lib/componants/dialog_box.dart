@@ -24,7 +24,7 @@ class DialogBox extends StatelessWidget {
         controller: controller,
         focusNode: focusNode,
         autofocus: true,
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
           labelText: 'Add a task',
           border: OutlineInputBorder(),
         ),
@@ -32,11 +32,11 @@ class DialogBox extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: onCancel,
-          child: Text('Cancel'),
+          child: const Text('Cancel'),
         ),
         TextButton(
           onPressed: onSave,
-          child: Text('Save'),
+          child: const Text('Save'),
         ),
       ],
     );

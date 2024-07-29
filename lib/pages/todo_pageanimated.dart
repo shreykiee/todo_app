@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import 'package:todo_app/componants/dialog_box.dart';
 import 'package:todo_app/componants/todo_tile.dart';
+import 'package:todo_app/data/database.dart';
 
 class TodoPage_animated extends StatefulWidget {
   const TodoPage_animated({super.key});
@@ -11,35 +13,54 @@ class TodoPage_animated extends StatefulWidget {
 }
 
 class _TodoPageState extends State<TodoPage_animated> {
+  // access hive box
+  final _mybox = Hive.box('mybox');
+
+  //
+  ToDoDatabase db = ToDoDatabase();
+
+  @override
+  void initState() {
+    // if this is the first time runnig app
+    if (_mybox.get('TODOLIST') == null) {
+      db.createinitialdata();
+    } else {
+      //there is data
+      db.loadData();
+    }
+    super.initState();
+  }
+
   // Text controller
   final TextEditingController Mycontroller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
 
-  final List<List<dynamic>> todolist = [];
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
   // Checkbox changed
   void checkboxchanged(bool? value, int index) {
     setState(() {
-      todolist[index][1] = !todolist[index][1];
+      db.todolist[index][1] = !db.todolist[index][1];
     });
+    db.updateDatabase();
   }
 
   // Saving new task
   void saveNewTask() {
     if (Mycontroller.text != "") {
       setState(() {
-        todolist.add([Mycontroller.text, false]);
+        db.todolist.add([Mycontroller.text, false]);
         Mycontroller.clear();
       });
-      _listKey.currentState?.insertItem(todolist.length - 1);
+      _listKey.currentState?.insertItem(db.todolist.length - 1);
       Navigator.of(context).pop();
+      db.updateDatabase();
     }
   }
 
   // Deleting task
   void deleteTask(int index) {
-    final removedTask = todolist.removeAt(index);
+    final removedTask = db.todolist.removeAt(index);
     _listKey.currentState?.removeItem(
       index,
       (context, animation) => SizeTransition(
@@ -52,6 +73,7 @@ class _TodoPageState extends State<TodoPage_animated> {
         ),
       ),
     );
+    db.updateDatabase();
   }
 
   // Creating new task
@@ -94,13 +116,13 @@ class _TodoPageState extends State<TodoPage_animated> {
       ),
       body: AnimatedList(
         key: _listKey,
-        initialItemCount: todolist.length,
+        initialItemCount: db.todolist.length,
         itemBuilder: (context, index, animation) {
           return SizeTransition(
             sizeFactor: animation,
             child: ToDoTile(
-              taskname: todolist[index][0],
-              taskCompleted: todolist[index][1],
+              taskname: db.todolist[index][0],
+              taskCompleted: db.todolist[index][1],
               onChanged: (value) => checkboxchanged(value, index),
               onDelete: () => deleteTask(index),
             ),
